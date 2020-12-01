@@ -5,12 +5,12 @@ defmodule Day1 do
 
   @doc """
   ## Examples
-      iex> Day1.p1p2(Helper.get_string_from_file("Day1_input.txt"))
+      iex> Day1.p1p2(Day1.parse_input(Helper.get_string_from_file("inputs/Day 1/My_Input.txt")))
       {440979, 82498112}
   """
 
   def p1p2(input) do
-    value_list = input |> parse_input() |> Enum.sort()
+    value_list = Enum.sort(input)
     p1 = value_list |> find_result_pair(2020) |> (fn {v1, v2} -> v1 * v2 end).()
     p2 = value_list |> find_result_trio(2020) |> (fn {v1, v2, v3} -> v1 * v2 * v3 end).()
     {p1, p2}
@@ -32,4 +32,10 @@ defmodule Day1 do
     for value <- String.split(input, "\n", trim: true), do: String.to_integer(value)
   end
 
+  @doc "The short solution"
+  def e(l) do
+    [x|_] = for i <- l, j <- l, i + j == 2020, do: i * j
+    [y|_] = for i <- l, j <- l, k <- l, i + j + k == 2020, do: i * j * k
+    {x, y}
+  end
 end
