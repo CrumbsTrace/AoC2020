@@ -1,5 +1,4 @@
 defmodule Day1 do
-  import ExProf.Macro
   @moduledoc """
   Day 1 of Advent of Code 2020
   """
