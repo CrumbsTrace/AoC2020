@@ -24,9 +24,15 @@ defmodule Day1 do
   end
 
   def find_result_pair([], _), do: nil
-  def find_result_pair([head | tail], desired_result) do
-    if Enum.member?(tail, desired_result - head), do: {head, desired_result - head}, else: find_result_pair(tail, desired_result)
+  def find_result_pair([head | _], desired_result) when head >= desired_result, do: nil
+  def find_result_pair([head | tail], desired_result) when head < desired_result do
+    if sorted_member?(tail, desired_result - head), do: {head, desired_result - head}, else: find_result_pair(tail, desired_result)
   end
+
+  def sorted_member?([], _), do: false
+  def sorted_member?([head|_], element) when head > element, do: false
+  def sorted_member?([head|_], element) when head == element, do: true
+  def sorted_member?([head|tail], element) when head < element, do: sorted_member?(tail, element)
 
   def parse_input(input) do
     for value <- String.split(input, "\n", trim: true), do: String.to_integer(value)
