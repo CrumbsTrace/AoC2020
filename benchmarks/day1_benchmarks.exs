@@ -7,5 +7,4 @@ Benchee.run(
       "Cat Input" => Day1.parse_input(Helper.get_string_from_file("inputs/Day 1/Cat_Input.txt")),
       "Mousey Input" => Day1.parse_input(Helper.get_string_from_file("inputs/Day 1/Mousey_Input.txt")),
       "Aquo input" => Day1.parse_input(Helper.get_string_from_file("inputs/Day 1/Aquo_Input.txt"))},
-    memory_time: 1
 )
