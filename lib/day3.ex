@@ -17,11 +17,11 @@ defmodule Day3 do
     {p1, p2}
   end
 
-  def go_through_slopes(_        , [             ]),  do: 1
+  def go_through_slopes(_        , []             ),  do: 1
   def go_through_slopes(landscape, [{dx, dy}|tail]),  do: get_tree_count(landscape, dx, dy) * go_through_slopes(landscape, tail)
 
-  def get_tree_count( landscape ,       dx, dy     ),                       do: get_tree_count(landscape, 0, 0    , dx, dy, 0)
-  def get_tree_count([         ], _, _, _ , _ , acc),                       do: acc
+  def get_tree_count(landscape  ,       dx, dy     ),                       do: get_tree_count(landscape, 0, 0    , dx, dy, 0)
+  def get_tree_count([]         , _, _, _ , _ , acc),                       do: acc
   def get_tree_count([_   |tail], x, y, dx, dy, acc) when rem(y, dy) != 0,  do: get_tree_count(tail, x     , y + 1, dx, dy, acc)
   def get_tree_count([head|tail], x, y, dx, dy, acc) when is_tree(head, x), do: get_tree_count(tail, x + dx, y + 1, dx, dy, acc + 1)
   def get_tree_count([_   |tail], x, y, dx, dy, acc),                       do: get_tree_count(tail, x + dx, y + 1, dx, dy, acc)

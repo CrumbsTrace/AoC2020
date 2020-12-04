@@ -26,10 +26,14 @@ defmodule Day1 do
   end
 
   @spec find_result_pair(list, number) :: nil | {number, number}
-  def find_result_pair([], _), do: nil
-  def find_result_pair([head | _], desired_result) when head >= desired_result, do: nil
+  def find_result_pair([],                         _),                             do: nil
+  def find_result_pair([head | _   ], desired_result) when head >= desired_result, do: nil
   def find_result_pair([head | tail], desired_result) when head < desired_result do
-    if sorted_member?(tail, desired_result - head), do: {head, desired_result - head}, else: find_result_pair(tail, desired_result)
+    if sorted_member?(tail, desired_result - head) do
+      {head, desired_result - head}
+    else
+      find_result_pair(tail, desired_result)
+    end
   end
 
   @spec sorted_member?(list, number) :: boolean

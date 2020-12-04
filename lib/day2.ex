@@ -1,9 +1,11 @@
 defmodule Day2 do
   defmodule Password do
+    @moduledoc false
     defstruct [:req, :input]
   end
 
   defmodule Req do
+    @moduledoc false
     defstruct [:lb, :ub, :rqc]
   end
   @moduledoc """
@@ -33,7 +35,8 @@ defmodule Day2 do
   def parse_input(input) do
     for line <- String.split(input, "\n", trim: true) do
       [lb, ub, required_char, password_input] = String.split(line, [" ", "-", ":"], trim: true)
-      %Password{req: %Req{lb: String.to_integer(lb), ub: String.to_integer(ub), rqc: required_char}, input: password_input}
+      requirement = %Req{lb: String.to_integer(lb), ub: String.to_integer(ub), rqc: required_char}
+      %Password{req: requirement, input: password_input}
     end
   end
 
