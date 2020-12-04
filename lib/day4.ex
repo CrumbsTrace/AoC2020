@@ -22,13 +22,14 @@ defmodule Day4 do
     {p1, p2}
   end
 
-
   def valid_passport_count([], _                    ), do: 0
   def valid_passport_count([passport|tail], validate), do: valid_passport(passport, validate) + valid_passport_count(tail, validate)
 
-  def convert_to_cm(input) when is_inches(input), do: round(String.to_integer(binary_part(input, 0, byte_size(input) - 2)) * 2.54)
-  def convert_to_cm(input) when is_cm(input)    , do: String.to_integer(binary_part(input, 0, byte_size(input) - 2))
+  def convert_to_cm(input) when is_inches(input), do: round(height_as_value(input)) * 2.54
+  def convert_to_cm(input) when is_cm(input)    , do: height_as_value(input)
   def convert_to_cm(_    )                      , do: 0
+
+  def height_as_value(height_string), do: String.to_integer(binary_part(height_string, 0, byte_size(height_string) - 2))
 
   def valid_passport(%Passport{iyr: iyr, byr: byr, eyr: eyr, hgt: hgt, pid: pid, ecl: ecl, hcl: hcl}, validate) do
     result =
