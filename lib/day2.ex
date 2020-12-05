@@ -19,18 +19,22 @@ defmodule Day2 do
   """
 
   def p1p2(input) do
-    p1 = input |> Enum.count(fn x -> is_regex_match_p1(x) end)
-    p2 = input |> Enum.count(fn x -> is_regex_match_p2(x) end)
+    p1 = input |> Enum.count(fn x -> match_p1?(x) end)
+    p2 = input |> Enum.count(fn x -> match_p2?(x) end)
     {p1, p2}
   end
 
-  def is_regex_match_p1(%Password{req: %Req{lb: lb, ub: ub, rqc: <<rqc>>}, input: input}) do
-    match_p1?(input, rqc, lb, ub, 0)
-  end
+  def match_p2?(%Password{req: %Req{lb: lb, ub: ub, rqc: <<rqc>>}, input: input}),                          do: match_p2?(input, rqc, lb, ub, false, 1)
+  def match_p2?(<<_::utf8   , tail::binary>> , rqc, lb, ub, found, index) when index != lb and index != ub, do: match_p2?(tail, rqc, lb, ub, found, index + 1)
+  def match_p2?(<<head::utf8, tail::binary>> , rqc, lb, ub, _    , index) when index == lb,                 do: match_p2?(tail, rqc, lb, ub, rqc == head, index + 1)
+  def match_p2?(<<head::utf8,    _::binary>> , rqc,  _, ub, found, index) when index == ub and found,       do: head != rqc
+  def match_p2?(<<head::utf8,    _::binary>> , rqc,  _, ub, found, index) when index == ub and not found,   do: head == rqc
 
-  def is_regex_match_p2(%Password{req: %Req{lb: lb, ub: ub, rqc: <<rqc>>}, input: input}) do
-    match_p2?(input, rqc, lb, ub, false, 1)
-  end
+  def match_p1?(%Password{req: %Req{lb: lb, ub: ub, rqc: <<rqc>>}, input: input}),  do: match_p1?(input, rqc, lb, ub, 0)
+  def match_p1?(""                          ,  _ , lb , ub,  acc),                  do: acc >= lb and acc <= ub
+  def match_p1?(<<head::utf8, tail::binary>>, rqc, lb , ub , acc) when head == rqc, do: match_p1?(tail, rqc, lb, ub, acc + 1)
+  def match_p1?(<<head::utf8, tail::binary>>, rqc, lb , ub , acc) when head != rqc, do: match_p1?(tail, rqc, lb, ub, acc    )
+
 
   def parse_input(input) do
     for line <- String.split(input, "\n", trim: true) do
@@ -39,14 +43,5 @@ defmodule Day2 do
       %Password{req: requirement, input: password_input}
     end
   end
-
-  def match_p2?(<<_::utf8, tail::binary>>   , rqc, lb, ub, found, index) when index != lb and index != ub, do: match_p2?(tail, rqc, lb, ub, found, index + 1)
-  def match_p2?(<<head::utf8, tail::binary>>, rqc, lb, ub, _    , index) when index == lb,                 do: match_p2?(tail, rqc, lb, ub, rqc == head, index + 1)
-  def match_p2?(<<head::utf8, _::binary>>   , rqc,  _, ub, found, index) when index == ub and found,       do: head != rqc
-  def match_p2?(<<head::utf8, _::binary>>   , rqc,  _, ub, found, index) when index == ub and not found,   do: head == rqc
-
-  def match_p1?(""   ,  _ , lb, ub, acc),                                           do: acc >= lb and acc <= ub
-  def match_p1?(<<head::utf8, tail::binary>>, rqc, lb , ub , acc) when head == rqc, do: match_p1?(tail, rqc, lb, ub, acc + 1)
-  def match_p1?(<<head::utf8, tail::binary>>, rqc, lb , ub , acc) when head != rqc, do: match_p1?(tail, rqc, lb, ub, acc    )
 
 end
