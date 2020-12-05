@@ -6,6 +6,8 @@ defmodule Day4 do
 
   defguardp is_inches(input) when binary_part(input, byte_size(input), -2) == "in"
   defguardp is_cm(input) when binary_part(input, byte_size(input), -2) == "cm"
+  defguardp is_hex(c) when c >= ?0 and c <= ?9 or c >= ?a and c <= ?f
+  defguardp is_digit(c) when c >= ?0 and c <= ?9
   @moduledoc """
   Day 4 of Advent of Code 2020
   """
@@ -25,7 +27,7 @@ defmodule Day4 do
   def valid_passport_count([], _                    ), do: 0
   def valid_passport_count([passport|tail], validate), do: valid_passport(passport, validate) + valid_passport_count(tail, validate)
 
-  def convert_to_cm(input) when is_inches(input), do: round(height_as_value(input)) * 2.54
+  def convert_to_cm(input) when is_inches(input), do: round(height_as_value(input) * 2.54)
   def convert_to_cm(input) when is_cm(input)    , do: height_as_value(input)
   def convert_to_cm(_    )                      , do: 0
 
@@ -49,9 +51,9 @@ defmodule Day4 do
   def valid_fld?("byr", value, true ), do: value in 1920..2002
   def valid_fld?("eyr", value, true ), do: value in 2020..2030
   def valid_fld?("hgt", value, true ), do: value in 150..193
-  def valid_fld?("pid", value, true ), do: Regex.match?(~r/^\d{9}$/, value)
+  def valid_fld?("pid", value, true ), do: pid?(value)
   def valid_fld?("ecl", value, true ), do: value in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
-  def valid_fld?("hcl", value, true ), do: Regex.match?(~r/^#[0-9a-f]{6}$/, value)
+  def valid_fld?("hcl", value, true ), do: hair_color?(value)
   def valid_fld?(_    , value, false), do: value != nil
 
   def convert_to_passports([head|[]  ], passport), do: [check_fields(head, passport)]
@@ -78,5 +80,29 @@ defmodule Day4 do
     |> String.split("\n")
     |> convert_to_passports(%Passport{})
   end
+
+  def pid?(input) when byte_size(input) != 9, do: false
+  def pid?(<<c1, c2, c3, c4, c5, c6, c7, c8, c9>>)
+    when is_digit(c1)
+    and  is_digit(c2)
+    and  is_digit(c3)
+    and  is_digit(c4)
+    and  is_digit(c5)
+    and  is_digit(c6)
+    and  is_digit(c7)
+    and  is_digit(c8)
+    and  is_digit(c9), do: true
+  def pid?(_),             do: false
+
+
+  def hair_color?(input) when byte_size(input) != 7, do: false
+  def hair_color?(<<?#, c1, c2, c3, c4, c5, c6>>)
+    when is_hex(c1)
+    and is_hex(c2)
+    and is_hex(c3)
+    and is_hex(c4)
+    and is_hex(c5)
+    and is_hex(c6), do: true
+  def hair_color?(_),  do: false
 
 end
