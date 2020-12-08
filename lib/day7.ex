@@ -13,7 +13,7 @@ defmodule Day7 do
   def p1p2(path) do
     map = path |> get_map()
     p1 = map |> get_bags_with(@desired_bag) |> get_p1_bags(map, []) |> Enum.count()
-    p2 = map |> (fn l -> l[@desired_bag] end).() |> get_p2_bag_count(map)
+    p2 = map |> (& &1[@desired_bag]).() |> get_p2_bag_count(map)
     {p1, p2}
   end
 
