@@ -22,9 +22,9 @@ defmodule Day10 do
   def p2([_                    ], seen), do: {1, seen}
   def p2([fst, snd       | []  ], seen), do: if(snd - fst == 3, do: {1, seen} , else: {0, seen})
   def p2([fst, snd, thrd | tail], seen) do
-    case Map.fetch(seen, fst) do
-      {:ok, value} -> {value, seen}
-      :error       -> {fst, 0, seen, [snd, thrd | tail]} |> check_next_adapter() |> check_next_adapter() |> check_next_adapter() |> collect_result()
+    case Map.get(seen, fst) do
+      nil       -> {fst, 0, seen, [snd, thrd | tail]} |> check_next_adapter() |> check_next_adapter() |> check_next_adapter() |> collect_result()
+      value -> {value, seen}
     end
   end
 
