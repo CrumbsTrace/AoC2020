@@ -32,10 +32,10 @@ defmodule Day10 do
   def check_next_adapter({v1, count, seen, [v2 |tail]}) when not (v2 - v1 in [1, 2, 3]), do: {v1, count, seen, tail}
   def check_next_adapter({v1, count, seen, [v2 |tail]}) do
     {new_count, new_seen} = p2([v2|tail], seen)
-    {v1, count + new_count, Map.put(new_seen, v1, count + new_count), tail}
+    {v1, count + new_count, new_seen, tail}
   end
 
-  def collect_result({_, count, seen, _}), do: {count, seen}
+  def collect_result({v1, count, seen, _}), do: {count, Map.put(seen, v1, count)}
 
   def parse_input(input), do: input |> String.split("\n", trim: true) |> Enum.map(&String.to_integer/1) |> (& [0, Enum.max(&1) + 3 | &1]).() |> Enum.sort()
 
