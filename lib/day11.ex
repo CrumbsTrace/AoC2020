@@ -1,7 +1,7 @@
 defmodule Day11 do
   defguardp is_too_many(amount, p1) when (p1 and amount > 3) or (not p1 and amount > 4)
   defmodule Parms do
-    defstruct [:w, :size, :p1]
+    defstruct [:w, :size, :p1, :dirs]
   end
   @moduledoc """
   Day 11 of Advent of Code 2020
@@ -14,46 +14,40 @@ defmodule Day11 do
   """
 
   def p1p2({w, seats}) do
-    p1 = seats |> play_musical_chairs_game_of_life(initialize_adj(seats), %Parms{w: w, size: map_size(seats), p1: true})
-    p2 = seats |> play_musical_chairs_game_of_life(initialize_adj(seats), %Parms{w: w, size: map_size(seats), p1: false})
+    p1 = seats |> play_musical_chairs_game_of_life(initialize_adj(seats), w, map_size(seats), true, set_up_dirs(w))
+    p2 = seats |> play_musical_chairs_game_of_life(initialize_adj(seats), w, map_size(seats), false, set_up_dirs(w))
     {p1, p2}
   end
 
-  def play_musical_chairs_game_of_life(seats, adj, parms) do
-    {new_seats, changed} = update_seats(adj, 0, seats, parms, false)
-    new_adj = generate_new_adj(new_seats, parms, 0)
-    if not changed, do: Enum.count(Map.values(new_seats), & "#" == &1), else: play_musical_chairs_game_of_life(new_seats, new_adj, parms)
+  def play_musical_chairs_game_of_life(seats, adj, w, size, p1, dirs) do
+    {new_seats, changed} = update_seats(adj, 0, seats, p1, false)
+    new_adj = generate_new_adj(new_seats, w, size, p1, dirs, 0)
+    if changed, do: play_musical_chairs_game_of_life(new_seats, new_adj, w, size, p1, dirs), else: Enum.count(Map.values(new_seats), & &1)
   end
 
   def update_seats([         ], _, seats, _    , changed), do: {seats, changed}
-  def update_seats([head|tail], i, seats, parms, changed)  do
-    seat = Map.get(seats, i)
-    case head do
-      c when is_too_many(c, parms.p1) and seat == "#" -> update_seats(tail, i + 1, Map.replace!(seats, i, "L"), parms, true)
-      c when c == 0                   and seat == "L" -> update_seats(tail, i + 1, Map.replace!(seats, i, "#"), parms, true)
-      _                                               -> update_seats(tail, i + 1, seats, parms, changed)
+  def update_seats([head|tail], i, seats, p1   , changed)  do
+    seat = Map.fetch!(seats, i)
+    case seat do
+      x when (x and is_too_many(head, p1))
+        or (not x and head == 0)          -> update_seats(tail, i + 1, Map.update!(seats, i, &not&1), p1, true)
+      _                                   -> update_seats(tail, i + 1, seats                        , p1, changed)
     end
   end
 
-  def generate_new_adj(_    , parms, i) when i >= parms.size, do: []
-  def generate_new_adj(seats, parms, i),                      do: [count_occupied(seats, i, parms) | generate_new_adj(seats, parms, i + 1)]
+  def generate_new_adj(_    , _, size, _ , _   , i) when i >= size, do: []
+  def generate_new_adj(seats, w, size, p1, dirs, i),                do: [count_occupied(seats, i, w, size, p1, dirs) | generate_new_adj(seats, w, size, p1, dirs, i + 1)]
 
-  def count_occupied(seats, i, p) do
-    [-1 - p.w, -p.w, -p.w + 1,
-     -1            ,        1,
-     -1 + p.w,  p.w,  p.w + 1]
-    |> Enum.map(fn dx -> see_occupied?(seats, i + dx, dx, p) end)
-    |> Enum.sum()
-  end
+  def count_occupied(seats, i, w, size, p1, dirs), do: dirs |> Enum.reduce(0, fn dx, acc -> acc + see_occupied?(seats, i + dx, dx, w, size, p1, dirs) end)
 
-  def see_occupied?(_    , i, dx, p) when rem(i,      p.w) == p.w - 1 and rem(i - dx, p.w) == 0, do: 0
-  def see_occupied?(_    , i, dx, p) when rem(i - dx, p.w) == p.w - 1 and rem(i     , p.w) == 0, do: 0
-  def see_occupied?(_    , i, _ , p) when i < 0 or i >= p.size,                              do: 0
-  def see_occupied?(seats, i, dx, p) do
-    case Map.get(seats, i) do
-      "." -> if(p.p1, do: 0, else: see_occupied?(seats, i + dx, dx, p))
-      "#" -> 1
-      "L" -> 0
+  def see_occupied?(_    , i, dx, w, _   , _, _) when rem(i,      w) == w - 1 and rem(i - dx, w) == 0, do: 0
+  def see_occupied?(_    , i, dx, w, _   , _, _) when rem(i - dx, w) == w - 1 and rem(i     , w) == 0, do: 0
+  def see_occupied?(_    , i, _ , _, size, _, _) when i < 0 or i >= size,                              do: 0
+  def see_occupied?(seats, i, dx, w, size, p1, dirs) do
+    case Map.fetch!(seats, i) do
+      true -> 1
+      false -> 0
+      nil -> if(p1, do: 0, else: see_occupied?(seats, i + dx, dx, w, size, p1, dirs))
     end
   end
 
@@ -62,9 +56,17 @@ defmodule Day11 do
     {String.length(hd(lines)), Enum.flat_map(lines, fn x -> String.split(x, "", trim: true) end) |> setup_indexed_map()}
   end
 
-  def setup_indexed_map(list), do: list |> Enum.with_index() |> Enum.map(fn {v, i} -> {i, v} end) |> Map.new()
+  def convert_value("#"), do: true
+  def convert_value("L"), do: false
+  def convert_value("."), do: nil
+
+  def setup_indexed_map(list), do: list |> Enum.with_index() |> Enum.map(fn {v, i} -> {i, convert_value(v)} end) |> Map.new()
 
   def initialize_adj(seats), do: Stream.repeatedly(fn -> 0 end) |> Enum.take(map_size(seats))
 
-  def pretty_print_seats(seats, w), do: seats |> Map.to_list |> Enum.sort_by(fn {i, _} -> i end) |> Enum.map(fn {_, value} -> value end) |> Enum.chunk_every(w) |> IO.inspect()
+  def set_up_dirs(w) do
+    [-1 -w, -w, -w + 1,
+    -1        ,      1,
+    -1 + w,  w,  w + 1]
+  end
 end
