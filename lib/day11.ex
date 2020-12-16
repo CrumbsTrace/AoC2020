@@ -1,8 +1,5 @@
 defmodule Day11 do
   defguardp is_too_many(amount, p1) when (p1 and amount > 3) or (not p1 and amount > 4)
-  defmodule Parms do
-    defstruct [:w, :size, :p1, :dirs]
-  end
   @moduledoc """
   Day 11 of Advent of Code 2020
   """

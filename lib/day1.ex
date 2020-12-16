@@ -54,13 +54,4 @@ defmodule Day1 do
     [y|_] = for i <- l, j <- l, k <- l, i + j + k == 2020, do: i * j * k
     {x, y}
   end
-
-  def do_thing(parameter_value) when parameter_value > 0 do
-    #Do Things
-  end
-
-  def do_thing(parameter_value) when parameter_value <= 0 do
-    #Do Something Else
-  end
-
 end

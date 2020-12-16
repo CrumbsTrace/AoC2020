@@ -43,19 +43,19 @@ defmodule Day14 do
   def get_addresses([]                       , ""            , acc, _)                  , do: [acc]
   def get_addresses([_    |a_tail], <<b_bit, b_tail::binary>>, acc, i) when b_bit == ?1 , do: get_addresses(a_tail, b_tail, (1     <<< (35 - i)) + acc, i + 1)
   def get_addresses([a_bit|a_tail], <<b_bit, b_tail::binary>>, acc, i) when b_bit == ?0 , do: get_addresses(a_tail, b_tail, (a_bit <<< (35 - i)) + acc, i + 1)
-  def get_addresses([_    |a_tail], <<b_bit, b_tail::binary>>, acc, i) when b_bit == ?X , do: get_addresses(a_tail, b_tail, (1     <<< (35 - i)) + acc, i + 1)
-                                                                                                ++ get_addresses(a_tail, b_tail, acc, i + 1)
+  def get_addresses([_    |a_tail], <<b_bit, b_tail::binary>>, acc, i) when b_bit == ?X , do: get_addresses(a_tail, b_tail, acc, i + 1)
+                                                                                              |> Enum.reduce([], fn x, acc -> [(1 <<< (35 - i)) + x, x| acc] end)
 
   def p1([]                      , _       , memory_map), do: Map.values(memory_map) |> Enum.sum()
-  def p1([["mask", bitmask]|tail], {_ , _ }, memory_map), do: p1(tail, new_bitmaps(bitmask), memory_map)
-  def p1([[addr  ,  value]|tail], {b1, b2}, memory_map),  do: p1(tail, {b1, b2}            , Map.put(memory_map, Integer.undigits(addr), (value ||| b1) &&& b2))
+  def p1([["mask", bitmask]|tail], {_ , _ }, memory_map), do: p1(tail, new_bitmasks(bitmask), memory_map)
+  def p1([[addr  ,   value]|tail], {b1, b2}, memory_map),  do: p1(tail, {b1, b2}            , Map.put(memory_map, Integer.undigits(addr), (value ||| b1) &&& b2))
 
 
-  def new_bitmaps(bitmask)                                     , do: new_bitmaps(bitmask, {0, 0}, 0)
-  def new_bitmaps(""                 , bitmasks,             _), do: bitmasks
-  def new_bitmaps(<<?X,tail::binary>>, {bitmask1, bitmask2}, i), do: new_bitmaps(tail, {bitmask1                   , (1 <<< (35 - i)) + bitmask2}, i + 1)
-  def new_bitmaps(<<?1,tail::binary>>, {bitmask1, bitmask2}, i), do: new_bitmaps(tail, {(1 <<< (35 - i)) + bitmask1, (1 <<< (35 - i)) + bitmask2}, i + 1)
-  def new_bitmaps(<<?0,tail::binary>>, {bitmask1, bitmask2}, i), do: new_bitmaps(tail, {bitmask1                   , bitmask2}                   , i + 1)
+  def new_bitmasks(bitmask)                                     , do: new_bitmasks(bitmask, {0, 0}, 0)
+  def new_bitmasks(""                 , bitmasks,             _), do: bitmasks
+  def new_bitmasks(<<?X,tail::binary>>, {bitmask1, bitmask2}, i), do: new_bitmasks(tail, {bitmask1                   , (1 <<< (35 - i)) + bitmask2}, i + 1)
+  def new_bitmasks(<<?1,tail::binary>>, {bitmask1, bitmask2}, i), do: new_bitmasks(tail, {(1 <<< (35 - i)) + bitmask1, (1 <<< (35 - i)) + bitmask2}, i + 1)
+  def new_bitmasks(<<?0,tail::binary>>, {bitmask1, bitmask2}, i), do: new_bitmasks(tail, {bitmask1                   , bitmask2}                   , i + 1)
 
   def parse_input(input) do
     String.split(input, "\n", trim: true)
