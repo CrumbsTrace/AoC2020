@@ -41,9 +41,14 @@ defmodule Day19 do
 
   def parse_rule(line, map) do
     [index, sub_rules] = String.split(line, ":", trim: true)
-    parsed_sub_rules = String.split(sub_rules, "|", trim: true) |> Enum.reduce([], fn sub_rule, acc -> [String.split(sub_rule, " ", trim: true) |> Enum.map(&try_to_int/1)|acc] end)
+    parsed_sub_rules =
+      String.split(sub_rules, "|", trim: true)
+      |> Enum.reduce([], fn sub_rule, acc -> [parse_subrule(sub_rule)|acc] end)
+
     Map.put(map, String.to_integer(index), parsed_sub_rules)
   end
+
+  def parse_subrule(sub_rule), do: String.split(sub_rule, " ", trim: true) |> Enum.map(&try_to_int/1)
 
   def try_to_int(v) when binary_part(v, 0, 1) != "\"", do: String.to_integer(v)
   def try_to_int(v)                                  , do: String.replace(v, "\"", "")
