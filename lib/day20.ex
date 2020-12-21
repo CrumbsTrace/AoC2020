@@ -31,15 +31,11 @@ defmodule Day20 do
 
   def find_monster(image), do: scan_image(0, 0, Enum.map(image, fn x -> List.to_tuple(x) end) |> List.to_tuple(), 0)
 
+  def scan_image(_, y, image, sea_monster_count) when y >= tuple_size(image), do: sea_monster_count
+  def scan_image(x, y, image, sea_monster_count) when x >= tuple_size(image), do: scan_image(0, y + 1, image, sea_monster_count)
   def scan_image(x, y, image, sea_monster_count) do
-    cond do
-      x > 8 * :math.sqrt(@size) -> scan_image(0, y + 1, image, sea_monster_count)
-      y > 8 * :math.sqrt(@size) -> sea_monster_count
-      true                      ->
-        new_count = if sea_monster?(x, y, image), do: sea_monster_count + 1, else: sea_monster_count
-        scan_image(x + 1, y, image, new_count)
-    end
-
+    new_count = if sea_monster?(x, y, image), do: sea_monster_count + 1, else: sea_monster_count
+    scan_image(x + 1, y, image, new_count)
   end
 
   def sea_monster?(x, y, p) do
