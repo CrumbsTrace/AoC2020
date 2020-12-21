@@ -1,5 +1,5 @@
-defmodule Day20Test do
+defmodule Day21Test do
   @moduledoc false
   use ExUnit.Case
-  doctest Day20
+  doctest Day21
 end
