@@ -17,27 +17,17 @@ defmodule Day23 do
     {p1, p2}
   end
 
-  def print_p2(map) do
-    v1 = Map.get(map, 1)
-    v2 = Map.get(map, v1)
-    v1 * v2
-  end
-
   def play(next_cup_map, _            , max_cycle, max_cycle, _), do: next_cup_map
   def play(next_cup_map, current_value, cycle, max_cycle, max_value) do
     [c1, c2, c3] = get_next_cups(next_cup_map, current_value, 0)
 
-    next_cup_map = Map.replace!(next_cup_map, current_value, Map.fetch!(next_cup_map, c3))
     next_value = next_value(current_value, [current_value, c1, c2, c3], max_value)
     value_after = Map.fetch!(next_cup_map, next_value)
 
-    next_cup_map = next_cup_map |> Map.replace!(next_value, c1) |> Map.replace!(c3, value_after)
+    next_cup_map = next_cup_map |> Map.replace!(current_value, Map.fetch!(next_cup_map, c3)) |> Map.replace!(next_value, c1) |> Map.replace!(c3, value_after)
 
     play(next_cup_map, Map.fetch!(next_cup_map, current_value), cycle + 1, max_cycle, max_value)
   end
-
-  def setup_map([]         , map, _       ), do: map
-  def setup_map([head|tail], map, previous), do: setup_map(tail, Map.put(map, head, previous), head)
 
   def next_value(value, next_cups, max_value) when value == 0, do: next_value(max_value, next_cups, max_value)
   def next_value(value, next_cups, max_value), do: if(value in next_cups, do: next_value(value - 1, next_cups, max_value), else: value)
@@ -52,6 +42,16 @@ defmodule Day23 do
 
   def split(input, pattern), do: String.split(input, pattern, trim: true)
 
+  def print_p2(map) do
+    v1 = Map.get(map, 1)
+    v2 = Map.get(map, v1)
+    v1 * v2
+  end
+
   def print_map(map, _      , result, count) when map_size(map) == count + 1, do: result |> Enum.reverse |> Enum.join()
   def print_map(map, current, result, count), do: print_map(map, Map.get(map, current), [Map.get(map, current)|result], count + 1)
+
+  def setup_map([]         , map, _       ), do: map
+  def setup_map([head|tail], map, previous), do: setup_map(tail, Map.put(map, head, previous), head)
+
 end
