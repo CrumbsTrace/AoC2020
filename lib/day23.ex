@@ -10,11 +10,11 @@ defmodule Day23 do
 
   """
   def p1p2(input) do
-    p1 = setup_map(input |> Enum.reverse, Map.new(), hd(input)) |> IO.inspect() |> play(hd(input), 0, 100, Enum.max(input))  |> print_map(1, [], 0)
+    p1 = setup_map(input |> Enum.reverse, Map.new(), hd(input)) |> play(hd(input), 0, 100, Enum.max(input))  |> print_map(1, [], 0)
 
-    #p2_map = setup_map(Enum.concat(input, 10..1000000) |> Enum.reverse, Map.new(), hd(input))
-    #p2 = p2_map |> play(hd(input), 0, 10000000, 1000000) |> print_p2()
-    {p1, 0}
+    p2_map = setup_map(Enum.concat(input, 10..1000) |> Enum.reverse, Map.new(), hd(input))
+    p2 = p2_map |> play(hd(input), 0, 10000000, 1000) |> print_p2()
+    {p1, p2}
   end
 
   def play(next_cup_map, _            , max_cycle, max_cycle, _), do: next_cup_map
